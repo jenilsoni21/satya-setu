@@ -1,0 +1,8 @@
+{
+  "name": "decode-uri-component",
+  "version": "0.5.0",
+  "description": "CJS-compatible decode-uri-component 0.5.0 (DoS fix) for query-string@7 / expo-router",
+  "license": "MIT",
+  "main": "index.js",
+  "sideEffects": false
+}
