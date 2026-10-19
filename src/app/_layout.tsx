@@ -1,18 +1,61 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+/**
+ * Root layout — Wraps the entire app in AuthProvider
+ * and renders either LoginScreen or the role-based navigator.
+ */
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import React from 'react';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { AuthProvider, useAuth } from '@/lib/AuthProvider';
+import { DesignTokens as DT } from '@/constants/design-tokens';
+import {
+  LoginScreen,
+  AdminPanelNavigator,
+  StaffPanelNavigator,
+  RegistrarPanelNavigator,
+} from '@/screens';
 
-SplashScreen.preventAutoHideAsync();
+function RootNavigator() {
+  const { user, role, loading } = useAuth();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // Splash / Loading
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={DT.color.primary} />
+      </View>
+    );
+  }
+
+  // Not authenticated → Login
+  if (!user) {
+    return <LoginScreen />;
+  }
+
+  // Authenticated → Role-based panel navigator with responsive TopBar and persistent BottomBar
+  switch (role) {
+    case 'admin':
+      return <AdminPanelNavigator />;
+    case 'registrar':
+      return <RegistrarPanelNavigator />;
+    case 'staff':
+    default:
+      return <StaffPanelNavigator />;
+  }
+}
+
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <AuthProvider>
+      <RootNavigator />
+    </AuthProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: DT.color.background,
+  },
+});
